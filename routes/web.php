@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CompetitionsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -14,23 +15,7 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/shadcn', function () {
-    return Inertia::render('Shadcn', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
-
-Route::get('/test', function () {
-    return Inertia::render('Test', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::get('/competitions', [CompetitionsController::class, 'index'])->name('competitions.index');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
