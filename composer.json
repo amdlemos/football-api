@@ -16,6 +16,7 @@
         "laravel/tinker": "^2.9",
         "saloonphp/cache-plugin": "^3.0",
         "saloonphp/saloon": "^3.0",
+        "spatie/laravel-data": "^4.13",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
