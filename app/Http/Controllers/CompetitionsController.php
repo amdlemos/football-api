@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\CompetitionData;
+use App\Models\Competition;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -25,10 +27,14 @@ class CompetitionsController extends Controller
      */
     public function index(Request $request): Response
     {
-        $response = $this->footballDataService->getCompetitions()->json();
+        $competitions = Competition::with(['area', 'currentSeason'])->get();
+        $competitionsData = CompetitionData::collect($competitions);
+        // dd($competitionsData);
+        $response = $this->footballDataService->getCompetitions();
+        // dd($response);
 
         return Inertia::render('Competitions/Index', [
-            'competitions' => $response,
+            'competitions' => $competitionsData,
         ]);
     }
     //
