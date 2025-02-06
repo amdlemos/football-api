@@ -13,6 +13,7 @@ class Competition extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'area_id',
         'name',
         'code',
@@ -22,16 +23,16 @@ class Competition extends Model
         'current_season_id'
     ];
 
-    /** @return BelongsTo<Area, Competition>  */
+    /** @return BelongsTo<Area>  */
     public function area()
     {
-        return $this->belongsTo(Area::class);
+        return $this->belongsTo(Area::class, 'area_id', 'id');
     }
 
-    /** @return BelongsTo<Season, Competition>  */
+    /** @return BelongsTo<Season>  */
     public function currentSeason()
     {
-        return $this->belongsTo(Season::class, 'current_season_id');
+        return $this->belongsTo(Season::class, 'current_season_id', 'id');
     }
 
     /** @return HasMany<Season, Competition>  */
