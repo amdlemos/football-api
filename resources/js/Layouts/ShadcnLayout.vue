@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Link } from '@inertiajs/vue3';
 
 import {
     Breadcrumb,
@@ -97,14 +98,14 @@ const data = {
     ],
     navMain: [
         {
-            title: 'Playground',
+            title: 'Competitions',
             url: '#',
             icon: SquareTerminal,
             isActive: true,
             items: [
                 {
-                    title: 'History',
-                    url: '#',
+                    title: 'Competitions',
+                    url: '/competitions',
                 },
                 {
                     title: 'Starred',
@@ -318,11 +319,11 @@ function setActiveTeam(team: (typeof data.teams)[number]) {
                                             :key="subItem.title"
                                         >
                                             <SidebarMenuSubButton as-child>
-                                                <a :href="subItem.url">
+                                                <Link :href="subItem.url">
                                                     <span>{{
                                                         subItem.title
                                                     }}</span>
-                                                </a>
+                                                </Link>
                                             </SidebarMenuSubButton>
                                         </SidebarMenuSubItem>
                                     </SidebarMenuSub>
