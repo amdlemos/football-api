@@ -13,10 +13,7 @@ defineProps<{
 
     <ShadcnLayout>
         <div class="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-            <Card
-                v-for="competition in competitions.competitions"
-                :key="competition.id"
-            >
+            <Card v-for="competition in competitions" :key="competition.id">
                 <Link href="/competition" :data="{ code: competition.code }">
                     <CardHeader
                         class="flex flex-row items-center justify-between space-y-0 pb-2"
@@ -37,12 +34,13 @@ defineProps<{
                         </div>
                         <p class="text-xs text-muted-foreground">
                             Temporada:
-                            {{ competition.currentSeason.startDate }} -
-                            {{ competition.currentSeason.endDate }}
+                            {{ competition.currentSeason.start_date }} -
+                            {{ competition.currentSeason.end_date }}
                         </p>
                     </CardContent>
                 </Link>
             </Card>
+            {{ competition }}
         </div>
     </ShadcnLayout>
 </template>
