@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('code');
             $table->string('type');
-            $table->string('emblem');
+            $table->string('emblem')->nullable();
             $table->string('plan');
             $table->unsignedBigInteger('current_season_id')->nullable();
             $table->timestamps();
