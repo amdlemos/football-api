@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CompetitionsController;
+use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,7 @@ Route::get('/', function () {
 });
 
 Route::get('/competitions', [CompetitionsController::class, 'index'])->name('competitions.index');
+Route::get('/competition', [CompetitionController::class, 'index'])->name('competition.index');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -27,4 +29,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
