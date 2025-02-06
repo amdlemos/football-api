@@ -34,6 +34,6 @@ class GetCompetitionTeamsRequest extends Request implements Cacheable
 
     public function cacheExpiryInSeconds(): int
     {
-        return 3600;
+        return 24 * 3600;
     }
 }
