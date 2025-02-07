@@ -10,17 +10,13 @@ use Saloon\CachePlugin\Traits\HasCaching;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
 
-/** @package App\Http\Integrations\Requests */
 class GetCompetitionTeamsRequest extends Request implements Cacheable
 {
     use HasCaching;
 
     protected Method $method = Method::GET;
 
-    public function __construct(protected readonly string $code)
-    {
-        // $this->code = $code;
-    }
+    public function __construct(protected readonly string $code) {}
 
     public function resolveEndpoint(): string
     {
