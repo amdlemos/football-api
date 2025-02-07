@@ -16,7 +16,7 @@ defineProps<{
             <h1
                 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl"
             >
-                {{ teams.competition.name }}
+                <!-- {{ teams.competition.name }} -->
             </h1>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
                 <Card>
@@ -81,24 +81,24 @@ defineProps<{
                     </CardHeader>
                     <CardContent>
                         <p class="text-sm font-medium">
-                            Coach: {{ team.coach.name }}
+                            <!-- Coach: {{ team.coach.name }} -->
                         </p>
                         <p class="text-xs text-muted-foreground">
-                            {{ team.coach.nationality }}
+                            <!-- {{ team.coach.nationality }} -->
                         </p>
                         <div class="mt-2">
                             <p class="text-sm font-medium">Competitions:</p>
                             <ul class="text-xs text-muted-foreground">
-                                <li
-                                    v-for="competition in team.runningCompetitions"
-                                    :key="competition.id"
-                                >
-                                    <img
-                                        :src="competition.emblem"
-                                        class="mr-1 inline-block h-4 w-4"
-                                    />
-                                    {{ competition.name }}
-                                </li>
+                                <!-- <li -->
+                                <!--     v-for="competition in team.runningCompetitions" -->
+                                <!--     :key="competition.id" -->
+                                <!-- > -->
+                                <!--     <img -->
+                                <!--         :src="competition.emblem" -->
+                                <!--         class="mr-1 inline-block h-4 w-4" -->
+                                <!--     /> -->
+                                <!--     {{ competition.name }} -->
+                                <!-- </li> -->
                             </ul>
                         </div>
                     </CardContent>
