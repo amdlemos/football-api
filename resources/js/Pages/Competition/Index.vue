@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Head } from '@inertiajs/vue3';
 
 defineProps<{
-    teams?: any;
+    competition?: any;
 }>();
 </script>
 
@@ -12,11 +12,11 @@ defineProps<{
     <Head title="Competition" />
 
     <ShadcnLayout>
-        <div v-if="teams.teams">
+        <div v-if="competition.teams">
             <h1
                 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl"
             >
-                <!-- {{ teams.competition.name }} -->
+                {{ competition.name }}
             </h1>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
                 <Card>
@@ -63,7 +63,7 @@ defineProps<{
             </h1>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card v-for="team in teams.teams" :key="team.id">
+                <Card v-for="team in competition.teams" :key="team.id">
                     <CardHeader class="flex items-center space-x-4">
                         <img
                             :src="team.crest"
@@ -72,36 +72,36 @@ defineProps<{
                         />
                         <div>
                             <CardTitle class="text-lg font-bold">
-                                {{ team.shortName }}
+                                {{ team.shortname }}
                             </CardTitle>
                             <p class="text-sm text-muted-foreground">
                                 Founded: {{ team.founded }}
                             </p>
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <p class="text-sm font-medium">
-                            <!-- Coach: {{ team.coach.name }} -->
-                        </p>
-                        <p class="text-xs text-muted-foreground">
-                            <!-- {{ team.coach.nationality }} -->
-                        </p>
-                        <div class="mt-2">
-                            <p class="text-sm font-medium">Competitions:</p>
-                            <ul class="text-xs text-muted-foreground">
-                                <!-- <li -->
-                                <!--     v-for="competition in team.runningCompetitions" -->
-                                <!--     :key="competition.id" -->
-                                <!-- > -->
-                                <!--     <img -->
-                                <!--         :src="competition.emblem" -->
-                                <!--         class="mr-1 inline-block h-4 w-4" -->
-                                <!--     /> -->
-                                <!--     {{ competition.name }} -->
-                                <!-- </li> -->
-                            </ul>
-                        </div>
-                    </CardContent>
+                    <!-- <CardContent> -->
+                    <!-- <p class="text-sm font-medium"> -->
+                    <!--     Coach: {{ team.coach.name }} -->
+                    <!-- </p> -->
+                    <!-- <p class="text-xs text-muted-foreground"> -->
+                    <!--     {{ team.coach.nationality }} -->
+                    <!-- </p> -->
+                    <!-- <div class="mt-2"> -->
+                    <!--     <p class="text-sm font-medium">Competitions:</p> -->
+                    <!--     <ul class="text-xs text-muted-foreground"> -->
+                    <!--         <li -->
+                    <!--             v-for="competition in team.runningCompetitions" -->
+                    <!--             :key="competition.id" -->
+                    <!--         > -->
+                    <!--             <img -->
+                    <!--                 :src="competition.emblem" -->
+                    <!--                 class="mr-1 inline-block h-4 w-4" -->
+                    <!--             /> -->
+                    <!--             {{ competition.name }} -->
+                    <!--         </li> -->
+                    <!--     </ul> -->
+                    <!-- </div> -->
+                    <!-- </CardContent> -->
                 </Card>
             </div>
         </div>
