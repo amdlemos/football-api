@@ -5,7 +5,9 @@ namespace App\Data;
 use App\Models\Area;
 use App\Models\Competition;
 use App\Models\Season;
+use App\Data\TeamData;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection;
 use Spatie\LaravelData\Attributes\WithCast;
 use Spatie\LaravelData\Casts\DateTimeInterfaceCast;
 use Spatie\LaravelData\Data;
@@ -21,8 +23,10 @@ class CompetitionData extends Data
         public string $type,
         public string $emblem,
         public string $plan,
-        public AreaData $area,
-        public SeasonData $currentSeason,
+        public ?AreaData $area,
+        public ?SeasonData $currentSeason,
+        /** @var TeamData[] */
+        public ?Collection $teams,
         #[WithCast(DateTimeInterfaceCast::class, format: 'Y-m-d')]
         public ?CarbonImmutable $published_at
     ) {}
@@ -38,7 +42,8 @@ class CompetitionData extends Data
             plan: $competition->plan,
             published_at: $competition->published_at,
             area: $competition->area ? AreaData::from($competition->area) : null,
-            currentSeason: $competition->currentSeason ? SeasonData::from($competition->currentSeason) : null
+            currentSeason: $competition->currentSeason ? SeasonData::from($competition->currentSeason) : null,
+            teams: $competition->teams ? TeamData::collect($competition->teams) : null,
         );
     }
 }

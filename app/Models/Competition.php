@@ -35,9 +35,8 @@ class Competition extends Model
         return $this->belongsTo(Season::class);
     }
 
-    /** @return HasMany<Season, Competition>  */
-    public function seasons()
+    public function teams()
     {
-        return $this->hasMany(Season::class);
+        return $this->belongsToMany(Team::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\CompetitionData;
 use App\Services\FootballDataService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,10 +25,11 @@ class CompetitionController extends Controller
      */
     public function index(Request $request): Response
     {
-        $response = $this->footballDataService->getCompetitionTeams($request['code'])->json();
+        $response = $this->footballDataService->getCompetitionTeams($request['code']);
+        // dd($response);
 
         return Inertia::render('Competition/Index', [
-            'teams' => $response,
+            'teams' => CompetitionData::from($response),
         ]);
     }
 }

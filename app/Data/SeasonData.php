@@ -16,6 +16,4 @@ class SeasonData extends Data
         // public int $current_season_id
 
     ) {}
-
-    protected $fillable = ['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'current_season_id'];
 }
