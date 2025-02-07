@@ -26,13 +26,13 @@ class Competition extends Model
     /** @return BelongsTo<Area>  */
     public function area()
     {
-        return $this->belongsTo(Area::class, 'area_id', 'id');
+        return $this->belongsTo(Area::class);
     }
 
     /** @return BelongsTo<Season>  */
     public function currentSeason()
     {
-        return $this->belongsTo(Season::class, 'current_season_id', 'id');
+        return $this->belongsTo(Season::class);
     }
 
     /** @return HasMany<Season, Competition>  */

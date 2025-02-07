@@ -28,7 +28,7 @@ class FootballDataService
 
     public function getCompetitions(): Collection
     {
-        // Cache::forget('competitions');
+        Cache::forget('competitions');
         // Primeiro, tenta buscar do cache
         return Cache::remember('competitions', self::CACHE_TTL, function () {
             // Se não está no cache, verifica o banco de dados
@@ -44,7 +44,7 @@ class FootballDataService
 
             $request = new GetCompetitionsRequest();
             // Se não está no banco ou está desatualizado, busca da API
-            $apiCompetitions = $this->connector->send(request: $request);
+            $apiCompetitions = $this->connector->send(request: $request)->json();
 
             // Atualiza o banco de dados
             foreach ($apiCompetitions["competitions"] as $competition) {
