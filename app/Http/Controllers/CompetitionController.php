@@ -26,7 +26,6 @@ class CompetitionController extends Controller
     public function index(Request $request): Response
     {
         $response = $this->footballDataService->getCompetitionTeams($request['code']);
-        // dd($response);
 
         return Inertia::render('Competition/Index', [
             'teams' => CompetitionData::from($response),
