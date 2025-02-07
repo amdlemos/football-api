@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Integrations\FootballDataConnector;
+use App\Http\Integrations\Requests\GetCompetitionRequest;
 use App\Http\Integrations\Requests\GetCompetitionsRequest;
 use App\Http\Integrations\Requests\GetCompetitionTeamsRequest;
 use App\Models\Area;
@@ -12,6 +13,7 @@ use App\Models\Team;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Saloon\Http\Request;
 use Saloon\Http\Response;
 
 /** @package App\Services */
@@ -148,19 +150,41 @@ class FootballDataService
                 'emblem' => $competition['emblem'],
                 'plan' => $competition['plan'],
                 'current_season_id' => $competition['currentSeason']['id'],
+                'current_matchday' => $competition['currentSeason']['currentMatchday'],
             ]
         );
     }
 
+
+    public function updateCompetitionMatchday(int $competitionCode)
+    {
+        $competition = $this->fetchCompetition($competitionCode);
+
+        Competition::updateOrCreate(
+            ['id' => $competition['id']],
+            [
+                'current_matchday' => $competition['currentSeason']['currentMatchday'],
+            ]
+        );
+    }
+
+    private function sendRequest(Request $request): array
+    {
+        return $this->connector->send($request)->json();
+    }
+
     public function fetchCompetitionTeams(string $code): array
     {
-        $request = new GetCompetitionTeamsRequest($code);
-        return $this->connector->send(request: $request)->json();
+        return $this->sendRequest(new GetCompetitionTeamsRequest($code));
     }
 
     public function fetchCompetitions(): array
     {
-        $request = new GetCompetitionsRequest();
-        return $this->connector->send(request: $request)->json();
+        return $this->sendRequest(new GetCompetitionsRequest());
+    }
+
+    public function fetchCompetition(string $code)
+    {
+        return $this->sendRequest(new GetCompetitionRequest($code));
     }
 }
