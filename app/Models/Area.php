@@ -10,10 +10,10 @@ class Area extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'flag'];
+    protected $fillable = ['id', 'name', 'code', 'flag'];
 
-    public function competitions()
-    {
-        return $this->hasMany(Competition::class);
-    }
+    // public function competitions()
+    // {
+    //     return $this->hasMany(Competition::class);
+    // }
 }
