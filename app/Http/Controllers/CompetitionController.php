@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\CompetitionData;
+use App\Data\GameData;
 use App\Services\FootballDataService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -25,10 +26,23 @@ class CompetitionController extends Controller
      */
     public function index(Request $request): Response
     {
-        $response = $this->footballDataService->getCompetitionTeams($request['code']);
+        $competitionCode = $request['code'];
+        $response = $this->footballDataService->getCompetitionTeams($competitionCode);
+        $upcomingMatches = $this->footballDataService->getUpcomingGamesByCompetition($competitionCode);
 
         return Inertia::render('Competition/Index', [
             'competition' => CompetitionData::from($response),
+            'upcomingMatches' => GameData::collect($upcomingMatches),
+        ]);
+    }
+
+    public function matches(Request $request): Response
+    {
+        $response = $this->footballDataService->fetchCompetitionMatches('ELC');
+
+        return Inertia::render('Competition/Matches', [
+            // 'matches' => CompetitionData::from($response),
+            'matches' => $response
         ]);
     }
 }

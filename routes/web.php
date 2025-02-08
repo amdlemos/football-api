@@ -7,17 +7,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
 
+Route::get('/', [CompetitionsController::class, 'index'])->name('competitions.index');
 Route::get('/competitions', [CompetitionsController::class, 'index'])->name('competitions.index');
 Route::get('/competition', [CompetitionController::class, 'index'])->name('competition.index');
+Route::get('/matches', [CompetitionController::class, 'matches'])->name('competition.matches');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

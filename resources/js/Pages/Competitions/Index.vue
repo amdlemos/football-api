@@ -12,6 +12,11 @@ defineProps<{
     <Head title="Competitions" />
 
     <ShadcnLayout>
+        <h1
+            class="scroll-m-20 p-4 text-3xl font-extrabold tracking-tight lg:text-4xl"
+        >
+            Competitions
+        </h1>
         <div class="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
             <Card v-for="competition in competitions" :key="competition.id">
                 <Link href="/competition" :data="{ code: competition.code }">

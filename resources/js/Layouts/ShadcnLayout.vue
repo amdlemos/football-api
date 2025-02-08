@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ToggleMode } from '@/components/ui/toggle-mode';
 import { Link } from '@inertiajs/vue3';
 
 import {
@@ -108,8 +109,8 @@ const data = {
                     url: '/competitions',
                 },
                 {
-                    title: 'Starred',
-                    url: '#',
+                    title: 'Matches',
+                    url: '/matches',
                 },
                 {
                     title: 'Settings',
@@ -506,6 +507,7 @@ function setActiveTeam(team: (typeof data.teams)[number]) {
                         </BreadcrumbList>
                     </Breadcrumb>
                 </div>
+                <ToggleMode />
             </header>
             <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
                 <!-- <div class="grid auto-rows-min gap-4 md:grid-cols-3"> -->

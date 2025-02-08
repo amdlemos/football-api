@@ -22,8 +22,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Area|null $area
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Game> $awayMatches
+ * @property-read int|null $away_matches_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Competition> $competitions
  * @property-read int|null $competitions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Game> $homeMatches
+ * @property-read int|null $home_matches_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Competition> $runningCompetitions
  * @property-read int|null $running_competitions_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Team newModelQuery()
@@ -78,5 +82,21 @@ class Team extends Model
     public function competitions()
     {
         return $this->belongsToMany(Competition::class);
+    }
+
+    public function homeMatches()
+    {
+        return $this->hasMany(Game::class, 'home_team_id');
+    }
+
+    public function awayMatches()
+    {
+        return $this->hasMany(Game::class, 'away_team_id');
+    }
+
+    public function allMatches()
+    {
+        return Game::where('home_team_id', $this->id)
+            ->orWhere('away_team_id', $this->id);
     }
 }

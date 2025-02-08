@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import ShadcnLayout from '@/Layouts/ShadcnLayout.vue';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Head } from '@inertiajs/vue3';
 
 defineProps<{
     competition?: any;
+    upcomingMatches?: any;
 }>();
 </script>
 
@@ -12,102 +13,64 @@ defineProps<{
     <Head title="Competition" />
 
     <ShadcnLayout>
-        <div v-if="competition.teams">
+        <div v-if="competition.teams" class="min-h-screen">
             <h1
-                class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl"
+                class="scroll-m-20 p-4 text-3xl font-extrabold tracking-tight lg:text-4xl"
             >
                 {{ competition.name }}
             </h1>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
-                <Card>
-                    <CardHeader class="flex items-center space-x-4">
-                        <div>
-                            <CardTitle class="text-lg font-bold">
-                                Previous Games
-                            </CardTitle>
-                            <p class="text-sm text-muted-foreground">
-                                See the previows games
-                            </p>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p class="text-sm font-medium">Round n - 1</p>
-                        <p class="text-xs text-muted-foreground">
-                            1/05/2025 - 7/05/2025
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader class="flex items-center space-x-4">
-                        <div>
-                            <CardTitle class="text-lg font-bold">
-                                Next Games
-                            </CardTitle>
-                            <p class="text-sm text-muted-foreground">
-                                See the next games
-                            </p>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p class="text-sm font-medium">Round n</p>
-                        <p class="text-xs text-muted-foreground">
-                            10/05/2025 - 11/05/2025
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
             <h1
-                class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl"
+                v-if="competition.teams.length > 0"
+                class="scroll-m-20 p-4 text-2xl font-extrabold tracking-tight lg:text-3xl"
             >
                 Teams
             </h1>
 
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div
+                v-if="competition.teams.length > 0"
+                class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6"
+            >
                 <Card v-for="team in competition.teams" :key="team.id">
-                    <CardHeader class="flex items-center space-x-4">
+                    <CardHeader class="flex items-center">
                         <img
                             :src="team.crest"
                             :alt="team.name"
                             class="h-12 w-12"
                         />
-                        <div>
-                            <CardTitle class="text-lg font-bold">
-                                {{ team.shortname }}
-                            </CardTitle>
-                            <p class="text-sm text-muted-foreground">
-                                Founded: {{ team.founded }}
-                            </p>
-                        </div>
+                        <CardTitle class="space-x-0 text-lg font-bold">
+                            {{ team.shortname }}
+                        </CardTitle>
                     </CardHeader>
-                    <!-- <CardContent> -->
-                    <!-- <p class="text-sm font-medium"> -->
-                    <!--     Coach: {{ team.coach.name }} -->
-                    <!-- </p> -->
-                    <!-- <p class="text-xs text-muted-foreground"> -->
-                    <!--     {{ team.coach.nationality }} -->
-                    <!-- </p> -->
-                    <!-- <div class="mt-2"> -->
-                    <!--     <p class="text-sm font-medium">Competitions:</p> -->
-                    <!--     <ul class="text-xs text-muted-foreground"> -->
-                    <!--         <li -->
-                    <!--             v-for="competition in team.runningCompetitions" -->
-                    <!--             :key="competition.id" -->
-                    <!--         > -->
-                    <!--             <img -->
-                    <!--                 :src="competition.emblem" -->
-                    <!--                 class="mr-1 inline-block h-4 w-4" -->
-                    <!--             /> -->
-                    <!--             {{ competition.name }} -->
-                    <!--         </li> -->
-                    <!--     </ul> -->
-                    <!-- </div> -->
-                    <!-- </CardContent> -->
                 </Card>
             </div>
-        </div>
+            <div
+                v-else
+                class="flex h-full items-center justify-center rounded-lg border border-dashed shadow-sm"
+            >
+                <div class="flex flex-col items-center gap-1 text-center">
+                    <h3 class="text-2xl font-bold tracking-tight">
+                        Teams not found
+                    </h3>
+                    <p class="text-sm text-muted-foreground">
+                        The API request limit has been exceeded or this
+                        competition has no teams.
+                    </p>
+                    <!-- <Button class="mt-4"> Add Product </Button> -->
+                </div>
+            </div>
+            <h1
+                v-if="upcomingMatches"
+                class="scroll-m-20 p-4 text-2xl font-extrabold tracking-tight lg:text-3xl"
+            >
+                Next Games
+            </h1>
 
-        <div v-else>
-            API did not return data or the limit was exceeded, try again later.
+            <div
+                v-if="upcomingMatches"
+                class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2"
+            >
+                <pre>{{ JSON.stringify(upcomingMatches, null, 2) }}</pre>
+            </div>
         </div>
     </ShadcnLayout>
 </template>
