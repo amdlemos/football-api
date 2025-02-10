@@ -209,6 +209,11 @@ function setActiveTeam(team: (typeof data.teams)[number]) {
     activeTeam.value = team;
 }
 </script>
+<script lang="ts">
+export default {
+    name: 'ShadcnLayout',
+};
+</script>
 
 <template>
     <Head title="Shadcn" />

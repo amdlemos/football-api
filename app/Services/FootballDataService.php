@@ -63,34 +63,18 @@ class FootballDataService
         $cacheKey = "competition_{$code}";
         // Cache::forget($cacheKey);
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($code) {
-
             $dbCompetition = Competition::with('teams')
                 ->where('code', $code)
                 ->where('updated_at', '>=', Carbon::now()->subSeconds(self::DB_REFRESH_INTERVAL))
                 ->first();
 
             if ($dbCompetition) {
-                $hasEnoughTeams = $dbCompetition->teams()
-                    ->select('id')
-                    ->limit(self::MIN_TEAMS_PER_COMPETITION)
-                    ->count() >= self::MIN_TEAMS_PER_COMPETITION;
-
-                if (!$hasEnoughTeams) {
-                    $apiCompetition = $this->fetchCompetitionTeams($code);
-
-                    if (!$apiCompetition) {
-                        return null;
-                    }
-
-                    foreach ($apiCompetition["teams"] as $team) {
-                        $this->syncArea($team['area']);
-                        $this->syncTeam($team);
-                        $dbCompetition->teams()->syncWithoutDetaching($team['id']);
-                    }
-                }
-
-                return $dbCompetition->load('teams');
+                return $this->hasEnoughTemas($dbCompetition);
             }
+
+            $dbCompetitions = $this->getCompetitions();
+            $dbCompetition = $dbCompetitions->where('code', $code)->firstOrFail();
+            return $this->hasEnoughTemas($dbCompetition);
         });
     }
 
@@ -109,6 +93,7 @@ class FootballDataService
                 ->orderBy('utc_date', 'asc')
                 ->get();
 
+            // dd($dbMatches);
             if ($dbMatches->isNotEmpty()) {
                 return $dbMatches;
             }
@@ -127,6 +112,30 @@ class FootballDataService
                 ->get();
             return $dbMatches;
         });
+    }
+
+    public function hasEnoughTemas(Competition $dbCompetition)
+    {
+        $hasEnoughTeams = $dbCompetition->teams()
+            ->select('id')
+            ->limit(self::MIN_TEAMS_PER_COMPETITION)
+            ->count() >= self::MIN_TEAMS_PER_COMPETITION;
+
+        if (!$hasEnoughTeams) {
+            $apiCompetition = $this->fetchCompetitionTeams($dbCompetition->code);
+
+            if (!$apiCompetition) {
+                return null;
+            }
+
+            foreach ($apiCompetition["teams"] as $team) {
+                $this->syncArea($team['area']);
+                $this->syncTeam($team);
+                $dbCompetition->teams()->syncWithoutDetaching($team['id']);
+            }
+        }
+
+        return $dbCompetition->load('teams');
     }
 
     public function syncArea(array $areaData)
