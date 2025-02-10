@@ -6,6 +6,7 @@ use App\Models\Game;
 use DateTime;
 use Spatie\LaravelData\Data;
 
+/** @typescript */
 class GameData extends Data
 {
     public function __construct(

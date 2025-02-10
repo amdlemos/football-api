@@ -5,6 +5,7 @@ namespace App\Data;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
 
+/** @typescript */
 class SeasonData extends Data
 {
     public function __construct(

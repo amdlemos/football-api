@@ -13,6 +13,7 @@ use Spatie\LaravelData\Casts\DateTimeInterfaceCast;
 use Spatie\LaravelData\Data;
 
 /** @package App\Data */
+/** @typescript */
 class CompetitionData extends Data
 {
     /** @return void  */
