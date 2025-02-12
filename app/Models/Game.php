@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -97,5 +98,15 @@ class Game extends Model
     public function awayTeam()
     {
         return $this->belongsTo(Team::class, 'away_team_id');
+    }
+
+    public function scopeUpcomingMatchesByTeam($query, $teamId)
+    {
+        return $query->where(function ($q) use ($teamId) {
+            $q->where('away_team_id', $teamId)
+                ->orWhere('home_team_id', $teamId);
+        })
+            ->whereDate('utc_date', '>=', Carbon::now()->format('Y-m-d'))
+            ->orderBy('utc_date', 'asc');
     }
 }
