@@ -30,6 +30,6 @@ class GetCompetitionTeamsRequest extends Request implements Cacheable
 
     public function cacheExpiryInSeconds(): int
     {
-        return 24 * 3600;
+        return config(key: 'football.cache_duration');
     }
 }

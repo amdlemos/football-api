@@ -10,7 +10,7 @@ use Saloon\CachePlugin\Traits\HasCaching;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
 
-class GetCompetitionMatchesRequest extends Request
+class GetMatchesByTeamRequest extends Request
 {
     // use HasCaching;
 
@@ -20,14 +20,14 @@ class GetCompetitionMatchesRequest extends Request
     protected Method $method = Method::GET;
 
     public function __construct(
-        protected readonly string $code,
+        protected string $teamId,
         protected ?string $dateFrom = null,
         protected ?string $dateTo = null,
-        protected ?string $stage = null,
+        protected ?string $season =  null,
+        protected ?string $competitionsId = null,
         protected ?string $status = null,
-        protected ?int $matchday = null,
-        protected ?string $group = null,
-        protected ?int $season = null
+        protected ?string $venue =  null,
+        protected ?string $limit = null
     ) {}
 
     /**
@@ -35,7 +35,7 @@ class GetCompetitionMatchesRequest extends Request
      */
     public function resolveEndpoint(): string
     {
-        return "/v4/competitions/{$this->code}/matches";
+        return "/v4/teams/{$this->teamId}/matches/";
     }
 
     protected function defaultQuery(): array
@@ -43,11 +43,11 @@ class GetCompetitionMatchesRequest extends Request
         return array_filter([
             'dateFrom' => $this->dateFrom,
             'dateTo' => $this->dateTo,
-            'stage' => $this->stage,
-            'status' => $this->status,
-            'matchday' => $this->matchday,
-            'group' => $this->group,
             'season' => $this->season,
+            'status' => $this->status,
+            'competitionsId' => $this->competitionsId,
+            'status' => $this->status,
+            'limit' => $this->limit,
         ], fn($value) => !is_null($value));
     }
 
@@ -58,6 +58,7 @@ class GetCompetitionMatchesRequest extends Request
 
     public function cacheExpiryInSeconds(): int
     {
-        return  config('football.cache_duration');
+        return 3600;
+        // return  config('football.cache_duration');
     }
 }

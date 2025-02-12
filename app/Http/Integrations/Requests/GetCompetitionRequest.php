@@ -36,6 +36,6 @@ class GetCompetitionRequest extends Request implements Cacheable
 
     public function cacheExpiryInSeconds(): int
     {
-        return 12 * 3600;
+        return config(key: 'plausible.cache.duration');
     }
 }
