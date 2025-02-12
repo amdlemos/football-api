@@ -4,13 +4,17 @@ import { Head } from '@inertiajs/vue3';
 
 defineProps<{
     matches?: any;
+    competitionMatches?: any;
+    teams?: any;
 }>();
 </script>
 
 <template>
+
     <Head title="Competitions" />
 
     <ShadcnLayout>
-        <pre>{{ JSON.stringify(matches, null, 2) }}</pre>
+        <h1>Teams</h1>
+        <pre>{{ JSON.stringify(teams, null, 2) }}</pre>
     </ShadcnLayout>
 </template>

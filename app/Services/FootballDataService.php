@@ -7,6 +7,9 @@ use App\Http\Integrations\Requests\GetCompetitionMatchesRequest;
 use App\Http\Integrations\Requests\GetCompetitionRequest;
 use App\Http\Integrations\Requests\GetCompetitionsRequest;
 use App\Http\Integrations\Requests\GetCompetitionTeamsRequest;
+use App\Http\Integrations\Requests\GetMatchesByTeamRequest;
+use App\Http\Integrations\Requests\GetMatchesRequest;
+use App\Http\Integrations\Requests\GetTeamsRequest;
 use App\Models\Area;
 use App\Models\Competition;
 use App\Models\Game;
@@ -23,8 +26,7 @@ class FootballDataService
 {
     protected FootballDataConnector $connector;
 
-    private const CACHE_TTL = 3600;
-    private const DB_REFRESH_INTERVAL = 24 * 3600;
+    private const CACHE_TTL = 3 * 3600;
     private const MIN_TEAMS_PER_COMPETITION = 10;
 
     public function __construct()
@@ -36,11 +38,9 @@ class FootballDataService
     {
         // Cache::forget('competitions');
         return Cache::remember('competitions', self::CACHE_TTL, function () {
-            $dbCompetitions = Competition::with(['area', 'currentSeason'])->where(
-                'updated_at',
-                '>=',
-                Carbon::now()->subSeconds(self::DB_REFRESH_INTERVAL)
-            )->get();
+            $dbCompetitions = Competition::with(['area', 'currentSeason', 'teams'])
+                ->where('type', 'LEAGUE')
+                ->get();
 
             if ($dbCompetitions->isNotEmpty()) {
                 return $dbCompetitions;
@@ -54,7 +54,9 @@ class FootballDataService
                 $this->syncCompetition($competition);
             }
 
-            return Competition::with('area', 'currentSeason')->get();
+            return Competition::with('area', 'currentSeason')
+                ->where('type', 'LEAGUE')
+                ->get();
         });
     }
 
@@ -65,7 +67,6 @@ class FootballDataService
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($code) {
             $dbCompetition = Competition::with('teams')
                 ->where('code', $code)
-                ->where('updated_at', '>=', Carbon::now()->subSeconds(self::DB_REFRESH_INTERVAL))
                 ->first();
 
             if ($dbCompetition) {
@@ -77,30 +78,62 @@ class FootballDataService
             return $this->hasEnoughTemas($dbCompetition);
         });
     }
+    public function getPreviousGamesByCompetition(string $competitionCode)
+    {
+        // dd(Carbon::now()->toDateTimeString());
+        $competition = Competition::where('code', $competitionCode)->firstOrFail();
+        $today = Carbon::now()->format('Y-m-d');
+        $startDate = $competition->currentSeason->start_date;
+        $cacheKey = "previousMatches_{$competitionCode}_{$startDate}_{$today}";
+        // Cache::forget($cacheKey);
 
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($competition, $today, $startDate) {
+            $dbMatches = Game::where('competition_id', $competition->id)
+                ->whereDate('utc_date', '<=', $today)
+                ->whereDate('utc_date', '>=', $startDate)
+                ->where('status', 'FINISHED')
+                ->orderBy('utc_date', 'desc')
+                ->get();
+
+            if ($dbMatches->isNotEmpty()) {
+                return $dbMatches;
+            }
+
+            $apiCompetition = $this->fetchCompetitionMatches($competition->code, $startDate, $today);
+
+            foreach ($apiCompetition["matches"] as $match) {
+                $this->syncMatch($match);
+            }
+
+            $dbMatches = Game::where('competition_id', $competition->id)
+                ->whereDate('utc_date', '<=', $today)
+                ->whereDate('utc_date', '>=', $startDate)
+                ->where('status', 'FINISHED')
+                ->orderBy('utc_date', 'desc')
+                ->get();
+            return $dbMatches;
+        });
+    }
     public function getUpcomingGamesByCompetition(string $competitionCode)
     {
         $competition = Competition::where('code', $competitionCode)->firstOrFail();
         $today = Carbon::now()->format('Y-m-d');
         $endDate = $competition->currentSeason->end_date;
-        $cacheKey = "competition_{$competitionCode}_{$today}_{$endDate}";
+        $cacheKey = "upcomingMatches_{$competitionCode}_{$today}_{$endDate}";
         // Cache::forget($cacheKey);
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($competition, $today, $endDate) {
             $dbMatches = Game::where('competition_id', $competition->id)
                 ->whereDate('utc_date', '>=', $today)
                 ->whereDate('utc_date', '<=', $endDate)
-                ->where('updated_at', '>=', Carbon::now()->subSeconds(self::DB_REFRESH_INTERVAL))
                 ->orderBy('utc_date', 'asc')
                 ->get();
 
-            // dd($dbMatches);
             if ($dbMatches->isNotEmpty()) {
                 return $dbMatches;
             }
 
             $apiCompetition = $this->fetchCompetitionMatches($competition->code, $today, $endDate);
 
-            // dd($apiCompetition);
             foreach ($apiCompetition["matches"] as $match) {
                 $this->syncMatch($match);
             }
@@ -113,6 +146,36 @@ class FootballDataService
             return $dbMatches;
         });
     }
+
+
+    public function getUpcomingGamesByTeam(string $teamId)
+    {
+        $today = Carbon::now()->format('Y-m-d');
+        $cacheKey = "upcoming-matches-{$teamId}-{$today}";
+
+        return Cache::remember(
+            $cacheKey,
+            self::CACHE_TTL,
+            function () use ($teamId) {
+                $dbMatches = Game::upcomingMatchesByTeam($teamId)->get();
+
+                if ($dbMatches->isNotEmpty()) {
+                    return $dbMatches;
+                }
+
+                $apiMatches = $this->fetchMatchesByTeam($teamId);
+
+                foreach ($apiMatches["matches"] as $match) {
+                    $this->syncMatch($match);
+                }
+
+                $dbMatches = Game::upcomingMatchesByTeam($teamId)->get();
+
+                return $dbMatches;
+            }
+        );
+    }
+
 
     public function hasEnoughTemas(Competition $dbCompetition)
     {
@@ -267,5 +330,53 @@ class FootballDataService
     public function fetchCompetitionMatches(string $code, ?string $dateFrom = null, ?string $dateTo = null): array
     {
         return $this->sendRequest(new GetCompetitionMatchesRequest($code, $dateFrom, $dateTo));
+    }
+
+    public function fetchMatches(
+        ?string $dateFrom = null,
+        ?string $dateTo = null,
+        ?string $status = null,
+        ?string $competitionsId = null,
+        ?string $ids = null
+    ) {
+        return $this->sendRequest(new GetMatchesRequest(
+            $dateFrom,
+            $dateTo,
+            $status,
+            $competitionsId,
+            $ids
+        ));
+    }
+
+    public function fetchTeams(
+        ?string $limit = null,
+        ?string $offset = null,
+    ) {
+        return $this->sendRequest(new GetTeamsRequest(
+            $limit,
+            $offset,
+        ));
+    }
+
+    public function fetchMatchesByTeam(
+        string $id,
+        ?string $dateFrom = null,
+        ?string $dateTo = null,
+        ?string $season = null,
+        ?string $competitionsId = null,
+        ?string $status = null,
+        ?string $venue = null,
+        ?string $limit = null,
+    ) {
+        return $this->sendRequest(new GetMatchesByTeamRequest(
+            $id,
+            $dateFrom,
+            $dateTo,
+            $season,
+            $competitionsId,
+            $status,
+            $venue,
+            $limit
+        ));
     }
 }

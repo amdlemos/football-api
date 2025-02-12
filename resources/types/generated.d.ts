@@ -18,6 +18,8 @@ export type CompetitionData = {
 export type GameData = {
     id: number;
     utcDate: string;
+    homeScoreFullTime: string | null;
+    awayScoreFullTime: string | null;
     homeTeam: TeamData;
     awayTeam: TeamData;
 };
@@ -29,8 +31,8 @@ export type SeasonData = {
 export type TeamData = {
     id: number;
     name: string;
-    shortname: string;
-    tla: string;
+    shortname: string | null;
+    tla: string | null;
     crest: string | null;
     address: string | null;
     website: string | null;

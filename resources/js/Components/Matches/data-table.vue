@@ -7,14 +7,26 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import type { ColumnDef } from '@tanstack/vue-table';
+import { valueUpdater } from '@/lib/utils';
+import type { ColumnDef, ColumnFiltersState } from '@tanstack/vue-table';
 
-import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+    FlexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    useVueTable,
+} from '@tanstack/vue-table';
+import { ref } from 'vue';
 
 const props = defineProps<{
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
 }>();
+
+const columnFilters = ref<ColumnFiltersState>([]);
 
 const table = useVueTable({
     get data() {
@@ -24,10 +36,21 @@ const table = useVueTable({
         return props.columns;
     },
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onColumnFiltersChange: (updaterOrValue) =>
+        valueUpdater(updaterOrValue, columnFilters),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+        get columnFilters() {
+            return columnFilters.value;
+        },
+    },
 });
 </script>
 
 <template>
+    <Input class="max-w-sm" placeholder="Filter matches..." :model-value="table.getState().globalFilter as string"
+        @update:model-value="table.setGlobalFilter($event)" />
     <div class="rounded-md border">
         <Table>
             <TableHeader>
@@ -56,5 +79,13 @@ const table = useVueTable({
                 </template>
             </TableBody>
         </Table>
+    </div>
+    <div class="flex items-center justify-end space-x-2 py-4">
+        <Button variant="outline" size="sm" :disabled="!table.getCanPreviousPage()" @click="table.previousPage()">
+            Previous
+        </Button>
+        <Button variant="outline" size="sm" :disabled="!table.getCanNextPage()" @click="table.nextPage()">
+            Next
+        </Button>
     </div>
 </template>
