@@ -5,12 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 /**
- * 
- *
- * @package App\Models
  * @property int $id
  * @property int $area_id
  * @property string $name
@@ -27,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\TFactory|null $use_factory
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Team> $teams
  * @property-read int|null $teams_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Competition newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Competition newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Competition query()
@@ -41,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Competition wherePlan($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Competition whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Competition whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Competition extends Model
@@ -55,7 +54,7 @@ class Competition extends Model
         'type',
         'emblem',
         'plan',
-        'current_season_id'
+        'current_season_id',
     ];
 
     /** @return BelongsTo<Area>  */
@@ -73,5 +72,59 @@ class Competition extends Model
     public function teams()
     {
         return $this->belongsToMany(Team::class);
+    }
+
+    public function scopeLeagues($query)
+    {
+        return $query->where('type', 'LEAGUE');
+    }
+
+    /**
+     * @param  mixed  $query
+     * @return mixed
+     */
+    public function scopeWithTeams($query)
+    {
+        return $query->with('teams');
+    }
+
+    public static function getCompetitionWithTeams(string $code): Competition
+    {
+        return static::withTeams()
+            ->where('code', $code)
+            ->first();
+    }
+
+    public static function getLeaguesWithRelations(): Collection
+    {
+        return static::with(['area', 'currentSeason', 'teams'])
+            ->leagues()
+            ->get();
+    }
+
+    public static function sync(array $competition)
+    {
+        static::updateOrCreate(
+            ['id' => $competition['id']],
+            [
+                'area_id' => $competition['area']['id'],
+                'name' => $competition['name'],
+                'code' => $competition['code'],
+                'type' => $competition['type'],
+                'emblem' => $competition['emblem'],
+                'plan' => $competition['plan'],
+                'current_season_id' => $competition['currentSeason']['id'],
+                'current_matchday' => $competition['currentSeason']['currentMatchday'],
+            ]
+        );
+    }
+
+    public static function syncFromApi(array $apiCompetitions): void
+    {
+        foreach ($apiCompetitions['competitions'] as $competition) {
+            Area::sync($competition['area']);
+            Season::sync($competition['currentSeason']);
+            static::sync($competition);
+        }
     }
 }

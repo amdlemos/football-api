@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @package App\Models
  * @property int $id
@@ -32,4 +32,18 @@ class Season extends Model
     use HasFactory;
 
     protected $fillable = ['id',  'start_date', 'end_date', 'current_matchday'];
+
+    public static function sync(array $seasonData)
+    {
+
+        return static::updateOrCreate(
+            ['id' => $seasonData['id']],
+            [
+                'start_date' => $seasonData['startDate'],
+                'end_date' => $seasonData['endDate'],
+                'current_matchday' => $seasonData['currentMatchday'],
+            ]
+
+        );
+    }
 }

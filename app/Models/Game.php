@@ -100,6 +100,35 @@ class Game extends Model
         return $this->belongsTo(Team::class, 'away_team_id');
     }
 
+    public static function sync(array $match)
+    {
+        static::updateOrCreate(
+            ['id' => $match['id']],
+            [
+                // 'utc_date' => $match['utcDate'],
+                'utc_date' => Carbon::parse($match['utcDate'])->format('Y-m-d H:i:s'),
+                'status' => $match['status'],
+                // 'minute' => $match['minute'],
+                // 'injury_time' => $match['injuryTime'],
+                // 'venue' => $match['venue'],
+                'matchday' => $match['matchday'],
+                'stage' => $match['stage'],
+                'last_update' => Carbon::parse($match['lastUpdated'])->format('Y-m-d H:i:s'),
+                'duration' => $match['score']['duration'],
+                'winner' => $match['score']['winner'],
+                'home_score_full_time' => $match['score']['fullTime']['home'],
+                'away_score_full_time' => $match['score']['fullTime']['away'],
+                'home_score_half_time' => $match['score']['halfTime']['home'],
+                'away_score_half_time' => $match['score']['halfTime']['away'],
+                'area_id' => $match['area']['id'],
+                'season_id' => $match['season']['id'],
+                'competition_id' => $match['competition']['id'],
+                'home_team_id' => $match['homeTeam']['id'],
+                'away_team_id' => $match['awayTeam']['id'],
+            ]
+
+        );
+    }
     public function scopeUpcomingMatchesByTeam($query, $teamId)
     {
         return $query->where(function ($q) use ($teamId) {
@@ -108,5 +137,50 @@ class Game extends Model
         })
             ->whereDate('utc_date', '>=', Carbon::now()->format('Y-m-d'))
             ->orderBy('utc_date', 'asc');
+    }
+
+    public function scopeOfCompetition($query, $competitionId)
+    {
+        return $query->where('competition_id', $competitionId);
+    }
+
+    public function scopeFinished($query)
+    {
+        return $query->where('status', 'FINISHED');
+    }
+
+    public function scopeBetweenDates($query, $startDate, $endDate)
+    {
+        return $query->whereDate('utc_date', '<=', $endDate)
+            ->whereDate('utc_date', '>=', $startDate);
+    }
+
+    public function scopeOrderByDate($query, $direction = 'desc')
+    {
+        return $query->orderBy('utc_date', $direction);
+    }
+
+    /**
+     * @param mixed $query
+     * @param mixed $competitionId
+     * @param mixed $startDate
+     * @param mixed $endDate
+     * @return mixed
+     */
+    public static function getFinishedBetweenDates($competitionId, $startDate, $endDate)
+    {
+        return static::ofCompetition($competitionId)
+            ->finished()
+            ->betweenDates($startDate, $endDate)
+            ->orderByDate()
+            ->get();
+    }
+
+    public static function getBetweenDates($competitionId, $startDate, $endDate)
+    {
+        return static::ofCompetition($competitionId)
+            ->betweenDates($startDate, $endDate)
+            ->orderByDate()
+            ->get();
     }
 }

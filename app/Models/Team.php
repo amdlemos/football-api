@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -98,5 +98,26 @@ class Team extends Model
     {
         return Game::where('home_team_id', $this->id)
             ->orWhere('away_team_id', $this->id);
+    }
+
+    public static function sync(array $team)
+    {
+        static::updateOrCreate(
+            ['id' => $team['id']],
+            [
+                'name' => $team['name'],
+                'shortname' => $team['shortName'],
+                'tla' => $team['tla'],
+                'crest' => $team['crest'],
+                'address' => $team['address'],
+                'website' => $team['website'],
+                'founded' => $team['founded'],
+                'club_colors' => $team['clubColors'],
+                'venue' => $team['venue'],
+                'last_update' => $team['lastUpdated'],
+                'area_id' => $team['area']['id']
+            ]
+
+        );
     }
 }

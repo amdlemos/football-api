@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @package App\Models
  * @property int $id
@@ -32,6 +32,18 @@ class Area extends Model
     use HasFactory;
 
     protected $fillable = ['id', 'name', 'code', 'flag'];
+
+    public static function sync($areaData)
+    {
+        return static::updateOrCreate(
+            ['id' => $areaData['id']],
+            [
+                'name' => $areaData['name'],
+                'code' => $areaData['code'],
+                'flag' => $areaData['flag'],
+            ]
+        );
+    }
 
     // public function competitions()
     // {
