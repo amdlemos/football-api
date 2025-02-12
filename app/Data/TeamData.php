@@ -10,8 +10,8 @@ class TeamData extends Data
     public function __construct(
         public int $id,
         public string $name,
-        public string $shortname,
-        public string $tla,
+        public ?string $shortname,
+        public ?string $tla,
         public ?string $crest,
         public ?string $address,
         public ?string $website,

@@ -12,6 +12,8 @@ class GameData extends Data
     public function __construct(
         public int $id,
         public string $utcDate,
+        public ?string $homeScoreFullTime,
+        public ?string $awayScoreFullTime,
         public TeamData $homeTeam,
         public TeamData $awayTeam,
         // public ?string $venue,
@@ -22,6 +24,8 @@ class GameData extends Data
         return new self(
             id: $game->id,
             utcDate: $game->utc_date,
+            homeScoreFullTime: $game->home_score_full_time,
+            awayScoreFullTime: $game->away_score_full_time,
             homeTeam: $game->homeTeam ? TeamData::from($game->homeTeam) : null,
             awayTeam: $game->awayTeam ? TeamData::from($game->awayTeam) : null,
         );
