@@ -8,22 +8,39 @@ use App\Models\Competition;
 use App\Models\Game;
 use App\Models\Team;
 use Carbon\Carbon;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
+use LogicException;
+use RuntimeException;
 
-/** @package App\Services */
+/**
+ * Football Data Service
+ */
 class FootballDataService
 {
     protected FootballApi $footballApi;
 
-    private const CACHE_TTL = 3 * 3600;
+    private const CACHE_TTL = 180;
+
     private const MIN_TEAMS_PER_COMPETITION = 10;
 
+    /**
+     * Initializes the FootballDataService class.
+     *
+     * @return void  */
     public function __construct()
     {
         $this->footballApi = new FootballApi();
     }
 
+    /**
+     * Retrieves a list of available competitions.
+     *
+     * @return Collection  */
     public function getCompetitions(): Collection
     {
         // Cache::forget('competitions');
@@ -36,15 +53,23 @@ class FootballDataService
 
             $apiCompetitions = $this->footballApi->fetchCompetitions();
 
+
             Competition::syncFromApi($apiCompetitions);
 
             return Competition::getLeaguesWithRelations();
         });
     }
 
-    public function getCompetitionTeams(string $code): Competition|null
+    /**
+     * Retrieves a competition along with its associated teams.
+     *
+     * @param string $code
+     * @return null|Competition
+     */
+    public function getCompetitionTeams(string $code): ?Competition
     {
         $cacheKey = "competition_{$code}";
+
         // Cache::forget($cacheKey);
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($code) {
             $dbCompetition = Competition::getCompetitionWithTeams($code);
@@ -55,9 +80,18 @@ class FootballDataService
 
             $dbCompetitions = $this->getCompetitions();
             $dbCompetition = $dbCompetitions->getCompetitionWithTeams($code);
+
             return $this->hasEnoughTemas($dbCompetition);
         });
     }
+
+    /**
+     * Retrieves all previous games for a given competition, from the start of the current season up to today.
+     *
+     * @param string $competitionCode
+     * @return mixed
+     * @throws ModelNotFoundException
+     */
     public function getPreviousGamesByCompetition(string $competitionCode)
     {
         $competition = Competition::where('code', $competitionCode)->firstOrFail();
@@ -75,38 +109,47 @@ class FootballDataService
 
             $apiCompetition = $this->footballApi->fetchCompetitionMatches($competition->code, $startDate, $today);
 
-            foreach ($apiCompetition["matches"] as $match) {
+            foreach ($apiCompetition['matches'] as $match) {
                 Game::sync($match);
             }
 
             return Game::getFinishedBetweenDates($competition->id, $startDate, $today);
         });
     }
+
+    /**
+     * Retrieves all upcoming games for a given competition, from today until the end of the current season.
+     *
+     * @param string $competitionCode
+     * @return mixed
+     * @throws ModelNotFoundException
+     */
     public function getUpcomingGamesByCompetition(string $competitionCode)
     {
         $competition = Competition::where('code', $competitionCode)->firstOrFail();
         $today = Carbon::now()->format('Y-m-d');
         $endDate = $competition->currentSeason->end_date;
         $cacheKey = "upcomingMatches_{$competitionCode}_{$today}_{$endDate}";
+
         // Cache::forget($cacheKey);
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($competition, $today, $endDate) {
-            $dbMatches = Game::getBetweenDates($competition->id, $today, $endDate);
+            $dbMatches = Game::getBetweenDates($competition->id, $today, $endDate, 'asc');
 
             if ($dbMatches->isNotEmpty()) {
                 return $dbMatches;
             }
 
-            $apiCompetition = $this->footballApi->fetchCompetitionMatches($competition->code, $today, $endDate);
-
-            foreach ($apiCompetition["matches"] as $match) {
-                Game::sync($match);
-            }
-
-            return Game::getBetweenDates($competition->id, $today, $endDate);
+            return $this->fetchAndSyncMatches($competition, $today, $endDate, 'asc');
         });
     }
 
-
+    /**
+     * Retrieves all upcoming games for a given team, from today until the end of the current season.
+     *
+     * @param string $teamId
+     * @return mixed
+     */
     public function getUpcomingGamesByTeam(string $teamId)
     {
         $today = Carbon::now()->format('Y-m-d');
@@ -124,7 +167,7 @@ class FootballDataService
 
                 $apiMatches = $this->footballApi->fetchMatchesByTeam($teamId);
 
-                foreach ($apiMatches["matches"] as $match) {
+                foreach ($apiMatches['matches'] as $match) {
                     Game::sync($match);
                 }
 
@@ -135,7 +178,17 @@ class FootballDataService
         );
     }
 
-
+    /**
+     * Checks if the given competition has at least 10 teams.
+     * If not, it triggers a synchronization request to the API to update the data.
+     *
+     * @param Competition $dbCompetition
+     * @return null|Competition
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws LogicException
+     * @throws RuntimeException
+     */
     public function hasEnoughTemas(Competition $dbCompetition)
     {
         $hasEnoughTeams = $dbCompetition->teams()
@@ -143,14 +196,14 @@ class FootballDataService
             ->limit(self::MIN_TEAMS_PER_COMPETITION)
             ->count() >= self::MIN_TEAMS_PER_COMPETITION;
 
-        if (!$hasEnoughTeams) {
+        if (! $hasEnoughTeams) {
             $apiCompetition = $this->footballApi->fetchCompetitionTeams($dbCompetition->code);
 
-            if (!$apiCompetition) {
+            if (! $apiCompetition) {
                 return null;
             }
 
-            foreach ($apiCompetition["teams"] as $team) {
+            foreach ($apiCompetition['teams'] as $team) {
                 Area::sync($team['area']);
                 Team::sync($team);
                 $dbCompetition->teams()->syncWithoutDetaching($team['id']);
@@ -160,15 +213,57 @@ class FootballDataService
         return $dbCompetition->load('teams');
     }
 
-    public function updateCompetitionMatchday(int $competitionCode)
-    {
-        $competition = $this->footballApi->fetchCompetition($competitionCode);
+    /**
+     * @param Competition $competition
+     * @param string $today
+     * @param string $endDate
+     * @param null|string $direction
+     * @return Collection
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws LogicException
+     * @throws RuntimeException
+     * @throws InvalidFormatException
+     */
+    private function fetchAndSyncMatches(
+        Competition $competition,
+        string $today,
+        string $endDate,
+        ?string $direction = 'desc'
+    ): Collection {
+        $apiCompetition = $this->footballApi->fetchCompetitionMatches($competition->code, $today, $endDate);
 
-        Competition::updateOrCreate(
-            ['id' => $competition['id']],
-            [
-                'current_matchday' => $competition['currentSeason']['currentMatchday'],
-            ]
-        );
+        foreach ($apiCompetition['matches'] as $match) {
+            Game::sync($match);
+        }
+
+        return Game::getBetweenDates($competition->id, $today, $endDate, $direction);
+    }
+
+    /**
+     * @param Competition $competition
+     * @param string $today
+     * @param string $endDate
+     * @return Collection
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws LogicException
+     * @throws RuntimeException
+     * @throws InvalidFormatException
+     */
+    public function refreshUpcomingMatchesByCompetition(
+        Competition $competition,
+        string $today,
+        string $endDate
+    ): Collection {
+        $cacheKey = "matches_competition_{$competition->id}_{$today}_{$endDate}";
+
+        Cache::forget($cacheKey);
+
+        $matches = $this->fetchAndSyncMatches($competition, $today, $endDate);
+
+        Cache::put($cacheKey, $matches, self::CACHE_TTL);
+
+        return $matches;
     }
 }

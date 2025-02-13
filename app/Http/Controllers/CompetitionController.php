@@ -66,15 +66,6 @@ class CompetitionController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * @throws FatalRequestException
-     * @throws RequestException
-     * @throws LogicException
-     * @throws RuntimeException
-     * @throws ValueError
-     * @throws TypeError
-     * @throws BindingResolutionException
-     * @throws CannotCreateData
-     * @throws CannotSetComputedValue
      */
     public function matches(Request $request): Response
     {
@@ -86,25 +77,13 @@ class CompetitionController extends Controller
         static $today = Carbon::now();
         $dateTo = $today->format('Y-m-d');
         $dateFrom = $today->addDays(-10)->format('Y-m-d');
-        // $matches = $this->footballDataService->fetchMatches($dateFrom, $dateTo);
-
-        $teams = $this->footballDataService->fetchMatchesByTeam(
-            11,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            10,
-        );
 
         // dd($response['matches
         return Inertia::render('Competition/Matches', [
             // 'matches' => GameData::from($response['matches']),
             // 'matches' => $matches,
             // 'competitionMatches' => $competitionMatches,
-            'teams' => $teams,
+            // 'teams' => $teams,
         ]);
     }
 }
