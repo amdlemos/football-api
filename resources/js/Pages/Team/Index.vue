@@ -1,44 +1,37 @@
 <script setup lang="ts">
+import { columnsCard } from '@/Components/Matches/columns-card';
 import ShadcnLayout from '@/Layouts/ShadcnLayout.vue';
-import { GameData } from '@/mytypes/generated';
+import { TeamData } from '@/mytypes/generated';
 import { Head } from '@inertiajs/vue3';
-import { columns } from '../../Components/Matches/columns';
-import DataTable from '../../Components/Matches/data-table.vue';
+import { default as DataTableCard } from '../../Components/Matches/data-table-card.vue';
 
-const props = defineProps<{
-    upcomingMatches: GameData[];
+defineProps<{
+    teams?: TeamData[];
 }>();
 </script>
 
 <template>
 
-    <Head title="Competitions" />
-
+    <Head title="Competition" />
     <ShadcnLayout>
         <h1 class="scroll-m-20 p-4 text-3xl font-extrabold tracking-tight lg:text-4xl">
-            Team Name
+            Teams
         </h1>
-
-        <div v-if="upcomingMatches" class="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-1">
-            <!-- <pre>{{ JSON.stringify(upcomingMatches, null, 2) }}</pre> -->
-            <DataTable :columns="columns" :data="upcomingMatches" />
+        <div v-if="teams" class="min-h-screen">
+            <div v-if="teams.length > 0">
+                <DataTableCard :columns="columnsCard" :data="teams" />
+            </div>
         </div>
-        <!-- <pre>{{ JSON.stringify(upcomingMatches, null, 2) }}</pre> -->
-        <!-- <div class="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4"> -->
-        <!--     <Card v-for="match in upcomingMatches" :key="match.id"> -->
-        <!--         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2"> -->
-        <!--             <CardTitle class="text-sm font-medium"> -->
-        <!--                 {{ match.utcDate }} -->
-        <!--             </CardTitle> -->
-        <!--         </CardHeader> -->
-        <!--         {{ match.homeTeam.shortname }} -->
-        <!--         {{ match.awayTeam.shortname }} -->
-        <!---->
-        <!--         <CardContent> -->
-        <!--             <div class="text-lg font-semibold"></div> -->
-        <!--             <p class="text-xs text-muted-foreground"></p> -->
-        <!--         </CardContent> -->
-        <!--     </Card> -->
-        <!-- </div> -->
+        <div v-else class="flex h-full items-center justify-center rounded-lg border border-dashed shadow-sm">
+            <div class="flex flex-col items-center gap-1 text-center">
+                <h3 class="text-2xl font-bold tracking-tight">
+                    Teams not found
+                </h3>
+                <p class="text-sm text-muted-foreground">
+                    The API request limit has been exceeded or this competition
+                    has no teams.
+                </p>
+            </div>
+        </div>
     </ShadcnLayout>
 </template>

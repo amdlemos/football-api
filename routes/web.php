@@ -13,7 +13,8 @@ Route::get('/', [CompetitionController::class, 'index'])->name('competitions.ind
 Route::get('/competitions', [CompetitionController::class, 'index'])->name('competition.index');
 Route::get('/competition', [CompetitionController::class, 'show'])->name('competition.show');
 Route::get('/matches', [CompetitionController::class, 'matches'])->name('competition.matches');
-Route::get('/team', [TeamController::class, 'index'])->name('team.index');
+Route::get('/team', [TeamController::class, 'show'])->name('team.show');
+Route::get('/teams', [TeamController::class, 'index'])->name('team.index');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

@@ -46,7 +46,6 @@ export const columns: ColumnDef<GameData>[] = [
         accessorFn: (row) => row.homeTeam.name,
         header: () => h('div', { class: 'text-right' }, 'Home'),
         cell: ({ row }) => {
-            console.log(row);
             return h(
                 'div',
                 { class: 'font-medium' },

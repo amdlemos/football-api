@@ -8,11 +8,14 @@ export const columnsCard: ColumnDef<TeamData>[] = [
     {
         accessorKey: 'name',
         cell: ({ row }) => {
-            const team = row.original; // Supondo que 'original' é o objeto completo com as propriedades do time
+            const team = row.original;
 
             return h(
                 Link,
-                { href: '/team', 'data-id': team.id }, // Atributos do Link
+                {
+                    href: '/team',
+                    data: { id: team.id },
+                },
                 {
                     default: () => [
                         h(
@@ -30,7 +33,7 @@ export const columnsCard: ColumnDef<TeamData>[] = [
                                         {
                                             class: 'space-x-0 text-lg font-bold',
                                         },
-                                        { default: () => team.shortname },
+                                        { default: () => team.name },
                                     ),
                                 ],
                             },
