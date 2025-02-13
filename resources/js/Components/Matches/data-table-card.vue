@@ -52,12 +52,17 @@ const table = useVueTable({
                 </Card>
             </div>
         </div>
-        <template v-else>
-            <TableRow>
-                <TableCell :colspan="columns.length" class="h-24 text-center">
-                    No results.
-                </TableCell>
-            </TableRow>
-        </template>
+
+        <div v-else class="flex min-h-screen items-center justify-center rounded-lg border border-dashed shadow-sm">
+            <div class="flex flex-col items-center gap-1 text-center">
+                <h3 class="text-2xl font-bold tracking-tight">
+                    Teams not found
+                </h3>
+                <p class="text-sm text-muted-foreground">
+                    The API request limit has been exceeded or this competition
+                    has no teams.
+                </p>
+            </div>
+        </div>
     </div>
 </template>

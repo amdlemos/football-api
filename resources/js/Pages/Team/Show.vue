@@ -3,10 +3,12 @@ import ShadcnLayout from '@/Layouts/ShadcnLayout.vue';
 import { GameData } from '@/mytypes/generated';
 import { Head } from '@inertiajs/vue3';
 import { columns } from '../../Components/Matches/columns';
-import DataTable from '../../Components/Matches/data-table.vue';
+
+import { default as PreviousNextMatches } from '../../Components/Matches/PreviousNextMatches.vue';
 
 const props = defineProps<{
     upcomingMatches: GameData[];
+    previousMatches: GameData[];
 }>();
 </script>
 
@@ -24,25 +26,11 @@ const props = defineProps<{
             v-if="upcomingMatches"
             class="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-1"
         >
-            <!-- <pre>{{ JSON.stringify(upcomingMatches, null, 2) }}</pre> -->
-            <DataTable :columns="columns" :data="upcomingMatches" />
+            <PreviousNextMatches
+                :upcomingMatches="upcomingMatches"
+                :previousMatches="previousMatches"
+                :columns="columns"
+            />
         </div>
-        <!-- <pre>{{ JSON.stringify(upcomingMatches, null, 2) }}</pre> -->
-        <!-- <div class="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4"> -->
-        <!--     <Card v-for="match in upcomingMatches" :key="match.id"> -->
-        <!--         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2"> -->
-        <!--             <CardTitle class="text-sm font-medium"> -->
-        <!--                 {{ match.utcDate }} -->
-        <!--             </CardTitle> -->
-        <!--         </CardHeader> -->
-        <!--         {{ match.homeTeam.shortname }} -->
-        <!--         {{ match.awayTeam.shortname }} -->
-        <!---->
-        <!--         <CardContent> -->
-        <!--             <div class="text-lg font-semibold"></div> -->
-        <!--             <p class="text-xs text-muted-foreground"></p> -->
-        <!--         </CardContent> -->
-        <!--     </Card> -->
-        <!-- </div> -->
     </ShadcnLayout>
 </template>

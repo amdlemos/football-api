@@ -49,30 +49,57 @@ const table = useVueTable({
 </script>
 
 <template>
-    <Input class="max-w-sm" placeholder="Filter matches..." :model-value="table.getState().globalFilter as string"
-        @update:model-value="table.setGlobalFilter($event)" />
+    <Input
+        class="max-w-sm"
+        placeholder="Filter matches..."
+        :model-value="table.getState().globalFilter as string"
+        @update:model-value="table.setGlobalFilter($event)"
+    />
     <div class="rounded-md border">
         <Table>
             <TableHeader>
-                <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-                    <TableHead v-for="header in headerGroup.headers" :key="header.id">
-                        <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-                            :props="header.getContext()" />
+                <TableRow
+                    v-for="headerGroup in table.getHeaderGroups()"
+                    :key="headerGroup.id"
+                >
+                    <TableHead
+                        v-for="header in headerGroup.headers"
+                        :key="header.id"
+                    >
+                        <FlexRender
+                            v-if="!header.isPlaceholder"
+                            :render="header.column.columnDef.header"
+                            :props="header.getContext()"
+                        />
                     </TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 <template v-if="table.getRowModel().rows?.length">
-                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id" :data-state="row.getIsSelected() ? 'selected' : undefined
-                        ">
-                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                    <TableRow
+                        v-for="row in table.getRowModel().rows"
+                        :key="row.id"
+                        :data-state="
+                            row.getIsSelected() ? 'selected' : undefined
+                        "
+                    >
+                        <TableCell
+                            v-for="cell in row.getVisibleCells()"
+                            :key="cell.id"
+                        >
+                            <FlexRender
+                                :render="cell.column.columnDef.cell"
+                                :props="cell.getContext()"
+                            />
                         </TableCell>
                     </TableRow>
                 </template>
                 <template v-else>
                     <TableRow>
-                        <TableCell :colspan="columns.length" class="h-24 text-center">
+                        <TableCell
+                            :colspan="columns.length"
+                            class="h-24 text-center"
+                        >
                             No results.
                         </TableCell>
                     </TableRow>
@@ -81,10 +108,20 @@ const table = useVueTable({
         </Table>
     </div>
     <div class="flex items-center justify-end space-x-2 py-4">
-        <Button variant="outline" size="sm" :disabled="!table.getCanPreviousPage()" @click="table.previousPage()">
+        <Button
+            variant="outline"
+            size="sm"
+            :disabled="!table.getCanPreviousPage()"
+            @click="table.previousPage()"
+        >
             Previous
         </Button>
-        <Button variant="outline" size="sm" :disabled="!table.getCanNextPage()" @click="table.nextPage()">
+        <Button
+            variant="outline"
+            size="sm"
+            :disabled="!table.getCanNextPage()"
+            @click="table.nextPage()"
+        >
             Next
         </Button>
     </div>

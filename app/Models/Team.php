@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
 
 /**
  *
@@ -94,12 +96,35 @@ class Team extends Model
         return $this->hasMany(Game::class, 'away_team_id');
     }
 
+    /**
+     * @return Builder<Game>
+     * @throws InvalidArgumentException
+     */
     public function allMatches()
     {
         return Game::where('home_team_id', $this->id)
             ->orWhere('away_team_id', $this->id);
     }
 
+    public function pastMatches()
+    {
+        return Game::where(function ($query) {
+            $query->where('home_team_id', $this->id)
+                ->orWhere('away_team_id', $this->id);
+        })
+            ->where('utc_date', '<', now())
+            ->where('status', 'FINISHED')
+            ->orderBy('utc_date', 'desc');
+    }
+
+    public function upcomingMatches()
+    {
+        return Game::where(function ($query) {
+            $query->where('home_team_id', $this->id)
+                ->orWhere('away_team_id', $this->id);
+        })
+            ->where('utc_date', '>=', now());
+    }
     public static function sync(array $team)
     {
         static::updateOrCreate(

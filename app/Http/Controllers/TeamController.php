@@ -7,6 +7,7 @@ use App\Data\TeamData;
 use App\Models\Team;
 use Illuminate\Http\Request;
 use App\Services\FootballDataService;
+use Carbon\Carbon;
 use Inertia\Inertia;
 
 class TeamController extends Controller
@@ -31,11 +32,15 @@ class TeamController extends Controller
     }
     public function show(Request $request)
     {
-        $upcomingMatches = $this->footballDataService->getUpcomingGamesByTeam($request->input('id'));
+        $team = Team::find($request->input('id'));
+        $upcomingMatches = $team->upcomingMatches()->get();
+        $previousMatches = $team->pastMatches()->get();
+        // $upcomingMatches = $this->footballDataService->getUpcomingGamesByTeam($request->input('id'));
+        // $previousMatches = $this->footballDataService->getPrGamesByTeam($request->input('id'));
 
         return Inertia::render('Team/Show', [
             'upcomingMatches' => GameData::collect($upcomingMatches),
-            // 'upcomingMatches' => $upcomingMatches
+            'previousMatches' => GameData::collect($previousMatches),
         ]);
     }
 }
