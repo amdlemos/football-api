@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { columnsCard } from '@/Components/Matches/columns-card';
 import ShadcnLayout from '@/Layouts/ShadcnLayout.vue';
 import { CompetitionData, GameData } from '@/mytypes/generated';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { columns } from '../../Components/Matches/columns';
-import DataTable from '../../Components/Matches/data-table.vue';
+import { default as DataTable } from '../../Components/Matches/data-table.vue';
 
+import { default as DataTableCard } from '../../Components/Matches/data-table-card.vue';
 defineProps<{
     competition?: CompetitionData;
     upcomingMatches?: GameData[];
@@ -27,18 +28,8 @@ defineProps<{
                 Teams
             </h1>
 
-            <div v-if="competition.teams.length > 0"
-                class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
-                <Card v-for="team in competition.teams" :key="team.id">
-                    <Link href="/team" :data="{ id: team.id }">
-                    <CardHeader class="flex items-center">
-                        <img :src="team.crest" :alt="team.name" class="h-12 w-12" />
-                        <CardTitle class="space-x-0 text-lg font-bold">
-                            {{ team.shortname }}
-                        </CardTitle>
-                    </CardHeader>
-                    </Link>
-                </Card>
+            <div v-if="competition.teams.length > 0">
+                <DataTableCard :columns="columnsCard" :data="competition.teams" />
             </div>
             <div v-else class="flex h-full items-center justify-center rounded-lg border border-dashed shadow-sm">
                 <div class="flex flex-col items-center gap-1 text-center">
