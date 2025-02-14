@@ -43,7 +43,6 @@ class FootballDataService
      * @return Collection  */
     public function getCompetitions(): Collection
     {
-        // Cache::forget('competitions');
         return Cache::remember('competitions', self::CACHE_TTL, function () {
             $dbCompetitions = Competition::getLeaguesWithRelations();
 
@@ -70,7 +69,6 @@ class FootballDataService
     {
         $cacheKey = "competition_{$code}";
 
-        // Cache::forget($cacheKey);
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($code) {
             $dbCompetition = Competition::getCompetitionWithTeams($code);
 
@@ -98,7 +96,6 @@ class FootballDataService
         $today = Carbon::now()->format('Y-m-d');
         $startDate = $competition->currentSeason->start_date;
         $cacheKey = "previousMatches_{$competitionCode}_{$startDate}_{$today}";
-        // Cache::forget($cacheKey);
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($competition, $today, $startDate) {
             $dbMatches = Game::getFinishedBetweenDates($competition->id, $startDate, $today);
@@ -130,8 +127,6 @@ class FootballDataService
         $today = Carbon::now()->format('Y-m-d');
         $endDate = $competition->currentSeason->end_date;
         $cacheKey = "upcomingMatches_{$competitionCode}_{$today}_{$endDate}";
-
-        // Cache::forget($cacheKey);
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($competition, $today, $endDate) {
             $dbMatches = Game::getBetweenDates($competition->id, $today, $endDate, 'asc');
@@ -179,6 +174,42 @@ class FootballDataService
     }
 
     /**
+     * * Retrieves all previous games for a given team from the database.
+     * If no matches are found, it fetches data from the external API and syncs it.
+     * The results are cached for optimized performance.
+     *
+     * @param string $teamId
+     * @return mixed
+     */
+    public function getPreviousGamesByTeam(string $teamId)
+    {
+        $today = Carbon::now()->format('Y-m-d');
+        $cacheKey = "upcoming-matches-{$teamId}-{$today}";
+
+        return Cache::remember(
+            $cacheKey,
+            self::CACHE_TTL,
+            function () use ($teamId) {
+                $dbMatches = Game::previousMatchesByTeam($teamId)->get();
+
+                if ($dbMatches->isNotEmpty()) {
+                    return $dbMatches;
+                }
+
+                $apiMatches = $this->footballApi->fetchMatchesByTeam($teamId);
+
+                foreach ($apiMatches['matches'] as $match) {
+                    Game::sync($match);
+                }
+
+                $dbMatches = Game::previousMatchesByTeam($teamId)->get();
+
+                return $dbMatches;
+            }
+        );
+    }
+
+    /**
      * Checks if the given competition has at least 10 teams.
      * If not, it triggers a synchronization request to the API to update the data.
      *
@@ -214,6 +245,9 @@ class FootballDataService
     }
 
     /**
+     * Fetches matches for a given competition from the external API,
+     * synchronizes them with the database, and retrieves the updated list of matches.
+     *
      * @param Competition $competition
      * @param string $today
      * @param string $endDate
