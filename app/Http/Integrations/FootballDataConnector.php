@@ -16,7 +16,7 @@ class FootballDataConnector extends Connector
 
     protected int $requestTimeout = 120;
 
-    protected ?string $token;
+    protected string $token;
 
     /**
      * @return void
