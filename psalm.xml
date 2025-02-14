@@ -12,5 +12,6 @@
     <UnusedVariable errorLevel="suppress"/>
     <UndefinedConstant errorLevel="suppress"/>
     <UndefinedMagicMethod errorLevel="suppress"/>
+    <LessSpecificImplementedReturnType errorLevel="suppress"/>
   </issueHandlers>
 </psalm>
