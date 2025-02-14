@@ -5,24 +5,16 @@ namespace App\Http\Controllers;
 use App\Data\CompetitionData;
 use App\Data\GameData;
 use App\Services\FootballDataService;
-use Carbon\Carbon;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Exceptions\Request\RequestException;
-use LogicException;
-use RuntimeException;
-use ValueError;
-use TypeError;
-use Spatie\LaravelData\Exceptions\CannotCreateData;
-use Spatie\LaravelData\Exceptions\CannotSetComputedValue;
 
-/** @package App\Http\Controllers */
+/**
+ *  Handles the logic for managing competitions, including retrieving and processing competition data.
+ *
+ * @package App\Http\Controllers */
 class CompetitionController extends Controller
 {
-
     protected FootballDataService $footballDataService;
 
     public function __construct(FootballDataService $footballDataService)
@@ -30,10 +22,12 @@ class CompetitionController extends Controller
         $this->footballDataService = $footballDataService;
     }
 
+
     /**
-     * @param Request $request
-     * @return App\Http\Controllers\Response
-     * @throws BindingResolutionException
+     * Displays a list of all available competitions.
+     *
+     * @param Request $request The incoming request.
+     * @return Response The rendered view with a list of competitions.
      */
     public function index(Request $request): Response
     {
@@ -45,9 +39,11 @@ class CompetitionController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return App\Http\Controllers\Response
-     * @throws BindingResolutionException
+     ** Displays detailed information about a specific competition,
+     *  including its teams and upcoming and previous matches.
+     *
+     * @param Request $request The incoming request containing the competition code.
+     * @return Response The rendered view with competition data and match details.
      */
     public function show(Request $request): Response
     {
@@ -60,30 +56,6 @@ class CompetitionController extends Controller
             'competition' => CompetitionData::from($response),
             'upcomingMatches' => GameData::collect($upcomingMatches),
             'previousMatches' => GameData::collect($previousMatches),
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     * @return Response
-     */
-    public function matches(Request $request): Response
-    {
-        $code = $request['code'];
-        $code = 'ELC';
-
-        // $competitionMatches = $this->footballDataService->fetchCompetitionMatches($code);
-
-        static $today = Carbon::now();
-        $dateTo = $today->format('Y-m-d');
-        $dateFrom = $today->addDays(-10)->format('Y-m-d');
-
-        // dd($response['matches
-        return Inertia::render('Competition/Matches', [
-            // 'matches' => GameData::from($response['matches']),
-            // 'matches' => $matches,
-            // 'competitionMatches' => $competitionMatches,
-            // 'teams' => $teams,
         ]);
     }
 }
