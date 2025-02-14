@@ -24,3 +24,4 @@ yarn-error.log
 /.zed
 /stubs
 /json-example
+.php-cs-fixer.cache
