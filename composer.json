@@ -29,6 +29,7 @@
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.23",
+        "friendsofphp/php-cs-fixer": "^3.68",
         "larastan/larastan": "^3.0",
         "laravel/breeze": "^2.3",
         "laravel/pail": "^1.1",
@@ -39,7 +40,9 @@
         "pestphp/pest": "^3.7",
         "pestphp/pest-plugin-laravel": "^3.1",
         "phpmd/phpmd": "@stable",
-        "squizlabs/php_codesniffer": "*"
+        "psalm/plugin-laravel": "^2.11",
+        "squizlabs/php_codesniffer": "*",
+        "vimeo/psalm": "^6.5"
     },
     "autoload": {
         "psr-4": {
