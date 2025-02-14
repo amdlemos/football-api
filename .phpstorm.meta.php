@@ -2242,11 +2242,10 @@ namespace PHPSTORM_META {
 'pulse','sanctum.csrf-cookie',
 'telescope','livewire.update','livewire.upload-file',
 'livewire.preview-file','competitions.index','competition.index','competition.show',
-'competition.matches','team.index','dashboard','profile.edit','profile.update',
-'profile.destroy','register','login',
-'password.request','password.email','password.reset','password.store','verification.notice',
-'verification.verify','verification.send','password.confirm','password.update',
-'logout','storage.local',);
+'competition.matches','team.show','team.index','dashboard','profile.edit',
+'profile.update','profile.destroy','register','login','password.request','password.email','password.reset','password.store',
+'verification.notice','verification.verify','verification.send','password.confirm',
+'password.update','logout','storage.local',);
         registerArgumentsSet('views', 
 'app','pulse::dashboard','vendor.pulse.dashboard','02a8dc4cf01fed584c6423f577c0b0d7::card','02a8dc4cf01fed584c6423f577c0b0d7::card-header',
 '02a8dc4cf01fed584c6423f577c0b0d7::http-method-badge','02a8dc4cf01fed584c6423f577c0b0d7::icons.arrow-trending-up','02a8dc4cf01fed584c6423f577c0b0d7::icons.arrows-left-right','02a8dc4cf01fed584c6423f577c0b0d7::icons.bug-ant','02a8dc4cf01fed584c6423f577c0b0d7::icons.circle-stack',
