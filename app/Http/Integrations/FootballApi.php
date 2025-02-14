@@ -9,26 +9,38 @@ use App\Http\Integrations\Requests\GetCompetitionTeamsRequest;
 use App\Http\Integrations\Requests\GetMatchesByTeamRequest;
 use App\Http\Integrations\Requests\GetMatchesRequest;
 use App\Http\Integrations\Requests\GetTeamsRequest;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Exceptions\Request\RequestException;
 use LogicException;
 use RuntimeException;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Request;
 
-/** @package App\Http\Integrations */
+/**
+ * Handles communication with the external football API to fetch data such as matches, teams, and competitions.
+ *
+ * @package App\Http\Integrations
+ */
 class FootballApi
 {
     protected FootballDataConnector $connector;
 
-    /** @return void  */
+    /**
+     * Initializes the FootballApi class by creating a new instance of the FootballDataConnector.
+     *
+     * @return void
+     */
     public function __construct()
     {
-        $this->connector = new FootballDataConnector;
+        $this->connector = new FootballDataConnector();
     }
 
     /**
-     * @param Request $request
-     * @return array
+     * Sends an HTTP request using the Saloon PHP connector and returns the response as an array.
+     *
+     * @param Request $request The request to be sent.
+     *
+     * @return array The response data in array format.    *
+     *
      * @throws FatalRequestException
      * @throws RequestException
      * @throws LogicException
@@ -40,8 +52,12 @@ class FootballApi
     }
 
     /**
-     * @param string $code
-     * @return array
+     * Fetches competition data from the external API using the provided competition code.
+     *
+     * @param string $code The unique code of the competition.
+     *
+     * @return array The competition data retrieved from the API.
+     *
      * @throws FatalRequestException
      * @throws RequestException
      * @throws LogicException
@@ -53,7 +69,10 @@ class FootballApi
     }
 
     /**
-     * @return array
+     * Fetches a list of all available competitions from the external API.
+     *
+     * @return array The list of competitions retrieved from the API.
+     *
      * @throws FatalRequestException
      * @throws RequestException
      * @throws LogicException
@@ -61,12 +80,16 @@ class FootballApi
      */
     public function fetchCompetitions(): array
     {
-        return $this->sendRequest(new GetCompetitionsRequest);
+        return $this->sendRequest(new GetCompetitionsRequest());
     }
 
     /**
-     * @param string $code
-     * @return array
+     * Fetches the list of teams for a specific competition using the competition code.
+     *
+     * @param string $code The unique code of the competition.
+     *
+     * @return array The list of teams in the competition retrieved from the API.
+     *
      * @throws FatalRequestException
      * @throws RequestException
      * @throws LogicException
@@ -78,10 +101,14 @@ class FootballApi
     }
 
     /**
-     * @param string $code
-     * @param null|string $dateFrom
-     * @param null|string $dateTo
-     * @return array
+     * Fetches the list of matches for a specific competition within a date range, using the competition code.
+     *
+     * @param string $code The unique code of the competition.
+     * @param string|null $dateFrom The start date for fetching matches (optional).
+     * @param string|null $dateTo The end date for fetching matches (optional).
+     *
+     * @return array The list of matches in the competition retrieved from the API.
+     *
      * @throws FatalRequestException
      * @throws RequestException
      * @throws LogicException
@@ -93,12 +120,16 @@ class FootballApi
     }
 
     /**
-     * @param null|string $dateFrom
-     * @param null|string $dateTo
-     * @param null|string $status
-     * @param null|string $competitionsId
-     * @param null|string $ids
-     * @return array
+     * Fetches a list of matches based on optional filters such as date range, status, and competition ID.
+     *
+     * @param string|null $dateFrom The start date for fetching matches (optional).
+     * @param string|null $dateTo The end date for fetching matches (optional).
+     * @param string|null $status The status of the matches to filter by (optional).
+     * @param string|null $competitionsId The ID of the competition to filter by (optional).
+     * @param string|null $ids A specific match ID or a list of match IDs to fetch (optional).
+     *
+     * @return array The list of matches retrieved from the API.
+     *
      * @throws FatalRequestException
      * @throws RequestException
      * @throws LogicException
@@ -121,9 +152,13 @@ class FootballApi
     }
 
     /**
-     * @param null|string $limit
-     * @param null|string $offset
-     * @return array
+     * Fetches a list of teams with optional pagination filters for limit and offset.
+     *
+     * @param string|null $limit The maximum number of teams to retrieve (optional).
+     * @param string|null $offset The offset to start retrieving teams from (optional).
+     *
+     * @return array The list of teams retrieved from the API.
+     *
      * @throws FatalRequestException
      * @throws RequestException
      * @throws LogicException
@@ -140,15 +175,20 @@ class FootballApi
     }
 
     /**
-     * @param string $teamId
-     * @param null|string $dateFrom
-     * @param null|string $dateTo
-     * @param null|string $season
-     * @param null|string $competitionsId
-     * @param null|string $status
-     * @param null|string $venue
-     * @param null|string $limit
-     * @return array
+     * Fetches a list of matches for a specific team, with optional filters such as date range, season,
+     * competition, status, and venue.
+     *
+     * @param string $teamId The unique ID of the team.
+     * @param string|null $dateFrom The start date for fetching matches (optional).
+     * @param string|null $dateTo The end date for fetching matches (optional).
+     * @param string|null $season The season to filter matches by (optional).
+     * @param string|null $competitionsId The ID of the competition to filter by (optional).
+     * @param string|null $status The status of the matches to filter by (optional).
+     * @param string|null $venue The venue to filter matches by (optional).
+     * @param string|null $limit The number of matches to return (optional).
+     *
+     * @return array The list of matches for the team retrieved from the API.
+     *
      * @throws FatalRequestException
      * @throws RequestException
      * @throws LogicException
