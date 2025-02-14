@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Data\CompetitionData;
 use App\Data\GameData;
+use App\Models\Game;
 use App\Services\FootballDataService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -56,6 +57,18 @@ class CompetitionController extends Controller
             'competition' => CompetitionData::from($response),
             'upcomingMatches' => GameData::collect($upcomingMatches),
             'previousMatches' => GameData::collect($previousMatches),
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    public function matches(Request $request): Response
+    {
+        $matches = Game::all();
+        return Inertia::render('Competition/Matches', [
+            'matches' => GameData::collect($matches),
         ]);
     }
 }
