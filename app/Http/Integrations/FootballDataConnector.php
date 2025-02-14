@@ -7,7 +7,12 @@ use Saloon\Http\Auth\HeaderAuthenticator;
 use Saloon\Http\Connector;
 use Saloon\Traits\Plugins\HasTimeout;
 
-/** @package App\Connectors */
+/**
+ * A custom connector for interacting with the football data API,
+ * extending the Saloon connector to manage requests and authentication.
+ *
+ * @package App\Http\Integrations
+ */
 class FootballDataConnector extends Connector
 {
     use HasTimeout;
@@ -19,6 +24,8 @@ class FootballDataConnector extends Connector
     protected string $token;
 
     /**
+     * Initializes the FootballDataConnector and sets the API token from the configuration.
+     *
      * @return void
      * @throws BindingResolutionException
      */
@@ -27,13 +34,22 @@ class FootballDataConnector extends Connector
         $this->token = config('football.api_key');
     }
 
+    /**
+     * Returns the default header authenticator using the API token for authentication.
+     *
+     * @return HeaderAuthenticator The authenticator instance with the API token in the header.
+     */
     protected function defaultAuth(): HeaderAuthenticator
     {
         return new HeaderAuthenticator($this->token, 'X-Auth-Token');
     }
 
 
-    /** @return string  */
+    /**
+     * Resolves and returns the base URL for the football API.
+     *
+     * @return string The base URL of the football API.
+     */
     public function resolveBaseUrl(): string
     {
         return 'https://api.football-data.org';
